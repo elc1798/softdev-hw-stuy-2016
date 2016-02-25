@@ -8,20 +8,16 @@ ctx.font = "60px Arial";
 var height = c.height;
 var width = c.width;
 
-var curr_x = width / 2;
-var curr_y = height / 2;
-var vx = (Math.round(Math.random() * 100) % 5) + 1;
-var vy = (Math.round(Math.random() * 100) % 5) + 1;
-
-console.log("Initial vx: " + vx);
-console.log("Initial vy: " + vy);
-
-var keep_drawing = true;
 var start_button = document.getElementById("start");
 var stop_button = document.getElementById("stop");
 
-var img = new Image();
-img.src = "sharingan.png";
+var animus = null;
+
+var mortum = function mortum() {
+    if (animus != null) {
+        window.cancelAnimationFrame(animus);
+    }
+}
 
 /*      Init with a black border line       */
 var init = function init() {
@@ -38,41 +34,41 @@ var clear_canvas = function clear_canvas() {
 };
 
 var draw = function draw() {
-    clear_canvas();
 
-    /*
-     * ctx.beginPath();
-     * ctx.fillStyle = "#3311FF";
-     * ctx.arc(curr_x, curr_y, ball_radius, 0, 2 * Math.PI);
-     * ctx.closePath();
-     * ctx.fill();
-     */
-    ctx.drawImage(img, curr_x, curr_y, 50, 50); // Draws the image
+    mortum();
 
-    if (curr_x + vx + 50 >= width || curr_x + vx <= 0) {
-        vx *= -1;
+    var curr_x = width / 2;
+    var curr_y = height / 2;
+    var vx = (Math.round(Math.random() * 100) % 5) + 1;
+    var vy = (Math.round(Math.random() * 100) % 5) + 1;
+
+    var img = new Image();
+    img.src = "sharingan.png";
+
+    var update = function update() {
+        clear_canvas();
+
+        ctx.drawImage(img, curr_x, curr_y, 50, 50); // Draws the image
+
+        if (curr_x + vx + 50 >= width || curr_x + vx <= 0) {
+            vx *= -1;
+        }
+        if (curr_y + vy + 50 >= height || curr_y + vy <= 0) {
+            vy *= -1;
+        }
+
+        curr_x += vx;
+        curr_y += vy;
+
+        animus = window.requestAnimationFrame(update);
     }
-    if (curr_y + vy + 50 >= height || curr_y + vy <= 0) {
-        vy *= -1;
-    }
 
-    curr_x += vx;
-    curr_y += vy;
-
-    if (keep_drawing) {
-        window.requestAnimationFrame(draw);
-    }
+    update();
 }
 
 // Add a click event listener to the button to clear
-start_button.addEventListener("click", function() {
-    keep_drawing = true;
-    window.requestAnimationFrame(draw);
-});
-
-stop_button.addEventListener("click", function() {
-    keep_drawing = false;
-});
+start_button.addEventListener("click", draw);
+stop_button.addEventListener("click", mortum);
 
 
 init(); // Draw the border
